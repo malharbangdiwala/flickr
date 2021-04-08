@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,7 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -74,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 mMainViewModel.onSearchTapped(mEtSearchString.getText().toString());
             }
         });
-
         //Observer to listen to different Errors
         mMainViewModel.getError().observe(this, new Observer<ErrorEnum>() {
             @Override
@@ -82,7 +83,19 @@ public class MainActivity extends AppCompatActivity {
                 if (errorEnum != null) {
                     switch (errorEnum) {
                         case UNABLE_TO_FETCH_DATA:
-                            Toast.makeText(MainActivity.this, errorEnum.getErrorResource(), Toast.LENGTH_SHORT).show();
+                            LinearLayout linearLayout=findViewById(R.id.linearLayout);
+                            Snackbar snackbar = Snackbar
+                                    .make(linearLayout, "Unable to fetch data", Snackbar.LENGTH_LONG)
+                                    .setAction("Retry", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Toast.makeText(MainActivity.this, "Retrying now", Toast.LENGTH_SHORT).show();
+                                            clearFocus();
+                                            mMainViewModel.onSearchTapped(mEtSearchString.getText().toString());
+                                        }
+                                    });
+
+                            snackbar.show();
                             break;
                         case INVALID_DATA:
                             mEtSearchString.setError(getString(errorEnum.getErrorResource()));
